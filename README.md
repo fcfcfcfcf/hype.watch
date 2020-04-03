@@ -1,0 +1,1 @@
+This is a hype-play alert service for traders
