@@ -1,2 +1,4 @@
-config.py
-symbols.hype
+
+watchlist.hype
+__pycache__
+.vscode
