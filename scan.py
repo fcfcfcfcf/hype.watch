@@ -23,6 +23,8 @@ watchlist = set()
 previous_size = Path('watchlist.hype').stat().st_size
 set_watchlist(watchlist, 'watchlist.hype')
 
+hypelist = set()
+
 # book-keeping
 next_cycle = False
 last_minute = datetime.now().minute
@@ -40,18 +42,22 @@ while True:
         previous_size = cur_size
         set_watchlist(watchlist, 'watchlist.hype')
 
-    symbols_to_report = set()
 
+    for symbol in hypelist:
+        data = api.get_barset(symbol, 'minute', limit=2)
+        last_minute = data[symbol][0].c
+        this_minute = data[symbol][1].c
+        if this_minute < last_minute:
+            print('ALERT: ' + symbol + 'is now only up ' + str((cur_price / yesterday_close * 100) - 100) + '%, down ' + str(last_minute-this_minute) + 'in the last minute')
     #do price comparisons on each stock
     for symbol in watchlist:
-        data = api.get_barset(symbol, 'day', limit=1)
+        data = api.get_barset(symbol, 'day', limit=2)
         yesterday_close = data[symbol][0].c
         data = api.get_barset(symbol, 'minute', limit=1)
         cur_price = data[symbol][0].c
         if cur_price >= 1.15 * yesterday_close:
-            print(symbol + ' has increased by ' + str(cur_price / float(yesterday_close)) + '%% and is now at ' + str(cur_price) + ' (closed yesterdat at ' + str(yesterday_close) + ')')
-        print(yesterday_close)
-        print(cur_price)
+            print('ALERT: ' + symbol + ' has increased by ' + str((cur_price / yesterday_close * 100) - 100) + '% and is now at ' + str(cur_price) + ' (closed yesterday at ' + str(yesterday_close) + ')')
+            hypelist.add(symbol)
     #wait until exactly a minute has passed since the last loop began and then go again
     while last_minute == datetime.now().minute:
         time.sleep(1)
