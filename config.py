@@ -1,0 +1,3 @@
+API_KEY='YOUR KEY HERE'
+SECRET_KEY='YOUR SECRET KEY HERE'
+ENDPOINT_URL='https://paper-api.alpaca.markets'
