@@ -44,11 +44,13 @@ while True:
 
 
     for symbol in hypelist:
+        data = api.get_barset(symbol, 'day', limit=2)
+        yesterday_close = data[symbol][0].c
         data = api.get_barset(symbol, 'minute', limit=2)
-        last_minute = data[symbol][0].c
-        this_minute = data[symbol][1].c
-        if this_minute < last_minute:
-            print('ALERT: ' + symbol + 'is now only up ' + str((cur_price / yesterday_close * 100) - 100) + '%, down ' + str(last_minute-this_minute) + 'in the last minute')
+        last_minute_price = data[symbol][0].c
+        this_minute_price = data[symbol][1].c
+        if this_minute_price < last_minute_price:
+            print('ALERT: ' + symbol + ' is now only up ' + str((this_minute_price / yesterday_close * 100) - 100) + '%, down ' + str(last_minute_price-this_minute_price) + ' in the last minute')
     #do price comparisons on each stock
     for symbol in watchlist:
         data = api.get_barset(symbol, 'day', limit=2)
@@ -59,9 +61,11 @@ while True:
             print('ALERT: ' + symbol + ' has increased by ' + str((cur_price / yesterday_close * 100) - 100) + '% and is now at ' + str(cur_price) + ' (closed yesterday at ' + str(yesterday_close) + ')')
             hypelist.add(symbol)
     #wait until exactly a minute has passed since the last loop began and then go again
-    while last_minute == datetime.now().minute:
+    this_minute = datetime.now().minute
+    while last_minute == this_minute:
         time.sleep(1)
-    last_minute = datetime.now().minute
+        this_minute = datetime.now().minute
+    last_minute = this_minute
 
 
 
